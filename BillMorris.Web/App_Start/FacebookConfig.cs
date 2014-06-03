@@ -11,7 +11,7 @@ namespace BillMorris.Web {
 			configuration.LoadFromAppSettings();
 
 			// Adding the authorization filter to check for Facebook signed requests and permissions
-			GlobalFilters.Filters.Add(new FacebookAuthorizeFilter(configuration));
+			//GlobalFilters.Filters.Add(new FacebookAuthorizeFilter(configuration));
 		}
 	}
 }

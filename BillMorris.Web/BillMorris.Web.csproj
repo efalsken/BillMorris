@@ -16,7 +16,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
-    <IISExpressSSLPort />
+    <IISExpressSSLPort>44300</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
@@ -43,10 +43,27 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Practices.Unity, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -132,16 +149,30 @@
     <Compile Include="App_Start\FacebookConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\UnityConfig.cs" />
+    <Compile Include="App_Start\Unity\PerRequestLifetimeManager.cs" />
+    <Compile Include="App_Start\Unity\UnityDependencyResolver.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Contexts\BillMorrisContext.cs" />
+    <Compile Include="Contexts\BillMorrisContext.Initializer.cs" />
+    <Compile Include="Contexts\Migrations\Configuration.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\UserRealtimeUpdateController.cs" />
+    <Compile Include="Extensions\FacebookClientExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\MyAppUserFriend.cs" />
-    <Compile Include="Models\MyAppUser.cs" />
+    <Compile Include="Models\Bill.cs" />
+    <Compile Include="Models\Participant.cs" />
+    <Compile Include="Models\FacebookTaggableFriend.cs" />
+    <Compile Include="Models\FacebookFriend.cs" />
+    <Compile Include="Models\FacebookUser.cs" />
+    <Compile Include="Models\FacebookGraphObjectReference.cs" />
+    <Compile Include="Models\FacebookLocation.cs" />
     <Compile Include="Models\FacebookPicture.cs" />
     <Compile Include="Models\FacebookPhoto.cs" />
+    <Compile Include="Models\FacebookPlace.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -150,7 +181,8 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="packages.config" />
-    <None Include="readme.txt" />
+    <Content Include="Models\_Model.cd" />
+    <None Include="Properties\PublishProfiles\billmorris.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -159,11 +191,18 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
+      <DependentUpon>Web.Base.config</DependentUpon>
     </Content>
     <Content Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
+      <DependentUpon>Web.Base.config</DependentUpon>
     </Content>
+    <Content Include="Web.Machine.config">
+      <DependentUpon>Web.Base.config</DependentUpon>
+    </Content>
+    <None Include="Web.Base.config" />
+    <None Include="Web.MachineTemplate.config">
+      <DependentUpon>Web.Base.config</DependentUpon>
+    </None>
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Views\_ViewStart.cshtml" />
@@ -173,6 +212,9 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Web.config" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
+    <Content Include="Views\Home\Anonymous.cshtml" />
+    <Content Include="Views\Bill\SelectParticipants.cshtml" />
+    <Content Include="Views\Bill\New.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -218,4 +260,27 @@
   </Target>
   <Target Name="AfterBuild">
   </Target> -->
+  <PropertyGroup>
+    <OnBeforeTransformWebConfig>
+			CopyWebConfigBase;
+			$(OnBeforeTransformWebConfig)
+		</OnBeforeTransformWebConfig>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <Target Name="CopyWebConfigBase">
+    <!-- Make sure web.config will be there even for package/publish -->
+    <Message Text="Copying Web.Base.config to Web.config" Importance="high" />
+    <Copy SourceFiles="Web.Base.config" DestinationFiles="Web.config" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+  </Target>
+  <Target Name="CustomConfigTransformForBuildConfiguration" BeforeTargets="BeforeBuild" DependsOnTargets="CopyWebConfigBase" Condition="Exists('Web.$(Configuration).config')">
+    <Message Text="Transforming: Web.$(Configuration).config" Importance="high" />
+    <TransformXml Source="Web.config" Transform="Web.$(Configuration).config" Destination="Web.config" StackTrace="true" />
+  </Target>
+  <Target Name="CustomWebConfigTransformForMachine" BeforeTargets="BeforeBuild" DependsOnTargets="CopyWebConfigBase" Condition="Exists('Web.Machine.config')">
+    <Message Text="Transforming: Web.Machine.config" Importance="high" />
+    <TransformXml Source="Web.config" Transform="Web.Machine.config" Destination="Web.config" StackTrace="true" />
+  </Target>
 </Project>

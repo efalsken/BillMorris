@@ -1,0 +1,11 @@
+﻿@using BillMorris.Web.Models
+@using Microsoft.AspNet.Mvc.Facebook.Models
+@model FacebookUser
+@{
+    ViewBag.Title = "Home Page";
+}
+<article>
+    <p>This is an awesome app. It requires you to Authorize before proceeding.</p>
+    <fb:login-button scope="public_profile,email,user_friends" onlogin="window.location.replace('@Url.Content("~/Home")');" size="large" show_faces="true"></fb:login-button>
+</article>
+

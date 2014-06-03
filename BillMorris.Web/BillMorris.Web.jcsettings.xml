@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<JustCodeSettings Version="0.0" Timestamp="7b709c70-4ddc-49a3-b1a9-a4d3e192b69d">
+  <NamespaceContributionSettings xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+    <IgnoredFolders>
+      <App_Start />
+    </IgnoredFolders>
+  </NamespaceContributionSettings>
+</JustCodeSettings>
